@@ -1,0 +1,64 @@
+# VitePress build outputs
+dist/
+.vitepress/dist/
+.vitepress/cache/
+
+# Node.js dependencies
+node_modules/
+
+# Package manager lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+
+# VitePress specific
+.vitepress/temp/
+.vitepress/.temp/
+
+# Build artifacts
+*.tsbuildinfo
+
+# Coverage reports
+coverage/
+
+# Test files
+test/
+tests/
+__tests__/
+
+# Documentation drafts
+drafts/
+*.draft.md
+
+# Local development
+.local/
+local/

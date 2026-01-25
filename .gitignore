@@ -1,0 +1,104 @@
+# Zig build artifacts
+zig-cache/
+zig-out/
+.zig-cache/
+
+# Build outputs
+*.exe
+*.dll
+*.so
+*.dylib
+*.lib
+*.a
+*.obj
+*.o
+*.pdb
+*.ilk
+*.exp
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Archive test files (generated during examples)
+test_*.txt
+test_*.gz
+test_*.zst
+test_*.lz4
+test_*.zip
+test_*.tar.gz
+compressed_*
+decompressed_*
+*_compressed.*
+*_decompressed.*
+large_test_*
+performance_test.*
+integrity_test*
+backup_test*
+directory_archive.*
+
+# Coverage reports
+coverage/
+*.gcov
+*.gcda
+*.gcno
+
+# Profiling data
+*.prof
+callgrind.out.*
+perf.data*
+
+# Documentation build artifacts (handled separately in docs/.gitignore)
+docs/dist/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
+# Node modules (if any Node.js tools are used)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Rust artifacts (if any Rust dependencies)
+target/
+Cargo.lock
+
+# C/C++ artifacts
+*.d
+*.dSYM/
+
+# Archive.zig specific
+examples/test_*
+examples/*_test.*
+examples/temp_*
+bench/results/
+bench/*.json
+bench/*.csv

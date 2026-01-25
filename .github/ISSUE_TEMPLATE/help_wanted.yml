@@ -1,0 +1,195 @@
+name: 🙋 Help Wanted
+description: Ask for help or guidance with using Archive.zig
+title: "[Help]: "
+labels: ["question", "help wanted"]
+assignees: ["muhammad-fiaz"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help with Archive.zig? We're here to assist! Please provide as much detail as possible so we can help you effectively.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please check the following before asking for help
+      options:
+        - label: I have searched existing issues and discussions
+          required: true
+        - label: I have checked the [documentation](https://muhammad-fiaz.github.io/archive.zig/)
+          required: true
+        - label: I have read the [Contributing Guidelines](../../CONTRIBUTING.md)
+          required: false
+
+  - type: dropdown
+    id: help-category
+    attributes:
+      label: Help Category
+      description: What type of help do you need?
+      options:
+        - Installation and setup
+        - Basic usage
+        - Algorithm selection
+        - Configuration
+        - Performance optimization
+        - Error troubleshooting
+        - Integration with other libraries
+        - Platform-specific issues
+        - Build system integration
+        - Best practices
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What do you need help with? Be as specific as possible.
+      placeholder: |
+        Describe your question or problem in detail...
+        
+        Example: "I'm trying to compress large files (>1GB) but running into memory issues. What's the best approach for handling large files with Archive.zig?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-tried
+    attributes:
+      label: What You've Tried
+      description: What have you already attempted?
+      placeholder: |
+        Describe what you've already tried...
+        
+        Example: "I tried using the basic compress() function but it loads the entire file into memory."
+    validations:
+      required: false
+
+  - type: textarea
+    id: current-code
+    attributes:
+      label: Current Code
+      description: Share your current code (if applicable)
+      render: zig
+      placeholder: |
+        const std = @import("std");
+        const archive = @import("archive");
+        
+        pub fn main() !void {
+            // Your current code here
+        }
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected Outcome
+      description: What are you trying to achieve?
+      placeholder: |
+        Describe what you want to accomplish...
+        
+        Example: "I want to compress files efficiently without loading them entirely into memory."
+    validations:
+      required: false
+
+  - type: input
+    id: zig-version
+    attributes:
+      label: Zig Version
+      description: Output of `zig version`
+      placeholder: "0.15.0"
+    validations:
+      required: false
+
+  - type: input
+    id: archive-version
+    attributes:
+      label: Archive.zig Version
+      description: Version of Archive.zig you're using
+      placeholder: "0.0.1"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - FreeBSD
+        - Other
+        - Not applicable
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: algorithms
+    attributes:
+      label: Relevant Algorithms
+      description: Which compression algorithms are you working with? (Check all that apply)
+      options:
+        - label: gzip
+        - label: zlib
+        - label: deflate
+        - label: zstd
+        - label: lz4
+        - label: lzma
+        - label: xz
+        - label: tar.gz
+        - label: zip
+        - label: Not sure / algorithm-agnostic
+        - label: Not applicable
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgent is this for you?
+      options:
+        - Low (learning/exploring)
+        - Medium (working on a project)
+        - High (blocking my work)
+        - Critical (production issue)
+    validations:
+      required: false
+
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: Error Messages
+      description: Any error messages you're encountering?
+      render: text
+      placeholder: |
+        Paste any error messages here...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other information that might be helpful
+      placeholder: |
+        - Project context or constraints
+        - Performance requirements
+        - Integration requirements
+        - Links to related resources
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: follow-up
+    attributes:
+      label: Follow-up
+      description: How would you like to follow up?
+      options:
+        - label: I'm available for back-and-forth discussion
+        - label: I can provide more details if needed
+        - label: I'm willing to test suggested solutions
+        - label: I can help improve documentation based on the solution

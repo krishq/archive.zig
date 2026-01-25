@@ -1,0 +1,307 @@
+name: Release
+
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  test:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+      - name: Run Tests
+        run: zig build test
+
+  build-library:
+    name: Build Library (${{ matrix.target }})
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64-windows
+          - x86-windows
+          - x86_64-linux
+          - x86-linux
+          - aarch64-linux
+          - x86_64-macos
+          - aarch64-macos
+          - x86_64-freestanding
+          - x86-freestanding
+          - aarch64-freestanding
+          - riscv64-freestanding
+          - arm-freestanding
+    steps:
+      - uses: actions/checkout@v5
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+      - name: Build Library
+        run: zig build -Doptimize=ReleaseSafe -Dtarget=${{ matrix.target }}
+      - name: Prepare Release Artifacts
+        run: |
+          mkdir -p release
+          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
+            # Copy windows static lib
+            cp zig-out/lib/archive.lib release/archive-${{ matrix.target }}.lib || true
+          else
+            # Copy unix static lib
+            cp zig-out/lib/libarchive.a release/libarchive-${{ matrix.target }}.a || true
+          fi
+      - name: Upload Release Artifacts
+        run: |
+          # Upload all prepared artifacts to the GitHub Release
+          gh release upload "${{ github.event.release.tag_name }}" release/* --clobber || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  build-examples:
+    name: Build Examples (${{ matrix.target }})
+    needs: test
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-windows
+            runner: windows-latest
+            ext: .exe
+          - target: x86_64-linux
+            runner: ubuntu-latest
+            ext: ""
+          - target: x86_64-macos
+            runner: macos-latest
+            ext: ""
+          - target: aarch64-macos
+            runner: macos-latest
+            ext: ""
+    steps:
+      - uses: actions/checkout@v5
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+      - name: Build Examples and Benchmarks
+        run: |
+          zig build -Doptimize=ReleaseFast -Dtarget=${{ matrix.target }}
+      - name: Prepare Example Artifacts
+        run: |
+          mkdir -p release/examples-${{ matrix.target }}
+          
+          # Copy main example
+          if [ -f "zig-out/bin/main${{ matrix.ext }}" ]; then
+            cp zig-out/bin/main${{ matrix.ext }} release/examples-${{ matrix.target }}/archive-example${{ matrix.ext }}
+          fi
+          
+          # Create README for examples
+          cat > release/examples-${{ matrix.target }}/README.md << 'EOF'
+          # Archive.zig Examples
+          
+          This directory contains example executables for the archive.zig library.
+          
+          ## Examples
+          
+          - `archive-example`: Comprehensive bootstrap example using the project's own files
+          
+          ## Usage
+          
+          Run any example without arguments to see the demonstration:
+          
+          ```bash
+          ./archive-example  # Bootstrap example using project files
+          ```
+          
+          ## Platform
+          
+          Built for: ${{ matrix.target }}
+          EOF
+          
+          # Create archive
+          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
+            cd release && zip -r examples-${{ matrix.target }}.zip examples-${{ matrix.target }}/
+          else
+            cd release && tar -czf examples-${{ matrix.target }}.tar.gz examples-${{ matrix.target }}/
+          fi
+        shell: bash
+      - name: Upload Example Artifacts
+        run: |
+          cd release
+          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
+            gh release upload "${{ github.event.release.tag_name }}" examples-${{ matrix.target }}.zip --clobber || true
+          else
+            gh release upload "${{ github.event.release.tag_name }}" examples-${{ matrix.target }}.tar.gz --clobber || true
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        shell: bash
+
+  build-documentation:
+    name: Build Documentation
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+      - name: Build Documentation
+        run: |
+          zig build docs
+          mkdir -p release
+          cd zig-out && tar -czf ../release/archive-docs-${{ github.event.release.tag_name }}.tar.gz docs/
+      - name: Upload Documentation
+        run: |
+          cd release
+          gh release upload "${{ github.event.release.tag_name }}" archive-docs-${{ github.event.release.tag_name }}.tar.gz --clobber || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  create-source-package:
+    name: Create Source Package
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Create Source Package
+        run: |
+          mkdir -p release/archive-source
+          
+          # Copy source files
+          cp -r src/ release/archive-source/
+          cp -r examples/ release/archive-source/
+          cp -r docs/ release/archive-source/
+          cp -r bench/ release/archive-source/
+          cp build.zig release/archive-source/
+          cp build.zig.zon release/archive-source/
+          cp README.md release/archive-source/
+          cp LICENSE release/archive-source/ 2>/dev/null || echo "# License" > release/archive-source/LICENSE
+          
+          # Create archives
+          cd release
+          tar -czf archive-source-${{ github.event.release.tag_name }}.tar.gz archive-source/
+          zip -r archive-source-${{ github.event.release.tag_name }}.zip archive-source/
+      - name: Upload Source Package
+        run: |
+          cd release
+          gh release upload "${{ github.event.release.tag_name }}" archive-source-${{ github.event.release.tag_name }}.tar.gz --clobber || true
+          gh release upload "${{ github.event.release.tag_name }}" archive-source-${{ github.event.release.tag_name }}.zip --clobber || true
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  update-release:
+    name: Update Release Description
+    needs: [test, build-library, build-examples, build-documentation, create-source-package]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get Release URL
+        id: get_url
+        run: echo "url=https://github.com/${{ github.repository }}/archive/refs/tags/${{ github.event.release.tag_name }}.tar.gz" >> $GITHUB_OUTPUT
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.15.2
+      - name: Calculate Hash
+        id: calc_hash
+        run: |
+          HASH=$(zig fetch ${{ steps.get_url.outputs.url }})
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+      - name: Update Release Body
+        uses: softprops/action-gh-release@v1
+        with:
+          body: |
+            ${{ github.event.release.body }}
+
+            ## 📃 Documentation
+
+            Full Documentation can be found at https://muhammad-fiaz.github.io/archive.zig/
+
+            ## 📦 Installation
+
+            ### Option A — Automatic (Recommended)
+
+            Run this to install the dependency and automatically save the hash:
+
+            ```bash
+            zig fetch --save https://github.com/${{ github.repository }}/archive/refs/tags/${{ github.event.release.tag_name }}.tar.gz
+            ```
+
+            > [!NOTE]
+            > After running, Zig updates your `build.zig.zon` with the correct hash automatically.
+
+            The entry will look like:
+
+            ```zig
+            .dependencies = .{
+                .archive = .{
+                    .url = "https://github.com/${{ github.repository }}/archive/refs/tags/${{ github.event.release.tag_name }}.tar.gz",
+                    .hash = "${{ steps.calc_hash.outputs.hash }}",
+                },
+            },
+            ```
+
+            ### Option B — Manual
+
+            ```bash
+            zig fetch --hash https://github.com/${{ github.repository }}/archive/refs/tags/${{ github.event.release.tag_name }}.tar.gz
+            ```
+
+            Copy that hash into your `build.zig.zon`:
+
+            ```zig
+            .hash = "${{ steps.calc_hash.outputs.hash }}"
+            ```
+
+            ## ⬇️ Downloads
+
+            ### 📚 Examples and Benchmarks
+
+            | Platform | File | Description |
+            |----------|------|-------------|
+            | Windows x64 | [examples-x86_64-windows.zip](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/examples-x86_64-windows.zip) | Example executables |
+            | Linux x64 | [examples-x86_64-linux.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/examples-x86_64-linux.tar.gz) | Example executables |
+            | macOS x64 | [examples-x86_64-macos.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/examples-x86_64-macos.tar.gz) | Example executables |
+            | macOS ARM64 | [examples-aarch64-macos.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/examples-aarch64-macos.tar.gz) | Example executables |
+
+            ### 📖 Documentation and Source
+
+            | Type | File | Description |
+            |------|------|-------------|
+            | Documentation | [archive-docs-${{ github.event.release.tag_name }}.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/archive-docs-${{ github.event.release.tag_name }}.tar.gz) | Generated API documentation |
+            | Source Code | [archive-source-${{ github.event.release.tag_name }}.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/archive-source-${{ github.event.release.tag_name }}.tar.gz) | Complete source code package |
+            | Source Code | [archive-source-${{ github.event.release.tag_name }}.zip](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/archive-source-${{ github.event.release.tag_name }}.zip) | Complete source code package (ZIP) |
+
+            ### 🔧 Prebuilt Libraries
+
+            | Platform | Architecture | File |
+            |----------|--------------|------|
+            | Windows | x86_64 | [archive-x86_64-windows.lib](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/archive-x86_64-windows.lib) |
+            | Windows | x86 | [archive-x86-windows.lib](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/archive-x86-windows.lib) |
+            | Linux | x86_64 | [libarchive-x86_64-linux.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-x86_64-linux.a) |
+            | Linux | x86 | [libarchive-x86-linux.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-x86-linux.a) |
+            | Linux | aarch64 (ARM64) | [libarchive-aarch64-linux.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-aarch64-linux.a) |
+            | macOS | x86_64 (Intel) | [libarchive-x86_64-macos.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-x86_64-macos.a) |
+            | macOS | aarch64 (Apple Silicon) | [libarchive-aarch64-macos.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-aarch64-macos.a) |
+            | Bare Metal | x86_64 | [libarchive-x86_64-freestanding.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-x86_64-freestanding.a) |
+            | Bare Metal | aarch64 | [libarchive-aarch64-freestanding.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-aarch64-freestanding.a) |
+            | Bare Metal | RISC-V 64 | [libarchive-riscv64-freestanding.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-riscv64-freestanding.a) |
+            | Bare Metal | ARM | [libarchive-arm-freestanding.a](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/libarchive-arm-freestanding.a) |
+
+            ### 🛠️ Using Prebuilt Libraries
+
+            1. Download the library for your platform.
+            2. Place it in your project (e.g., in a `libs/` folder).
+            3. Update your `build.zig`:
+
+            ```zig
+            // Assuming you placed the library in `libs/`
+            exe.addLibraryPath(b.path("libs"));
+            exe.linkSystemLibrary("archive");
+            ```

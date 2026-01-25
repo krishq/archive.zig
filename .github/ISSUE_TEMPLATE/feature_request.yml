@@ -1,0 +1,186 @@
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement for Archive.zig
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+assignees: ["muhammad-fiaz"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please provide detailed information to help us understand and evaluate your request.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please check the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this feature hasn't been requested
+          required: true
+        - label: I have read the [Contributing Guidelines](../../CONTRIBUTING.md)
+          required: true
+        - label: I have checked the [documentation](https://muhammad-fiaz.github.io/archive.zig/) to ensure this feature doesn't already exist
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What use case does it address?
+      placeholder: |
+        Describe the problem or limitation you're facing...
+        
+        Example: "Currently, there's no way to compress multiple files in parallel, which makes batch processing slow for large datasets."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed solution in detail
+      placeholder: |
+        Describe how you envision this feature working...
+        
+        Example: "Add a parallel compression API that can process multiple files concurrently using a thread pool."
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-design
+    attributes:
+      label: API Design (Optional)
+      description: If you have ideas about the API design, please share them
+      render: zig
+      placeholder: |
+        // Example API design
+        const parallel_config = archive.ParallelConfig{
+            .thread_count = 4,
+            .chunk_size = 1024 * 1024,
+        };
+        
+        const results = try archive.compressParallel(allocator, files, .gzip, parallel_config);
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: What alternative solutions have you considered?
+      placeholder: |
+        Describe any alternative approaches you've thought about...
+        
+        Example: "I considered using async/await, but thread pools might be more suitable for CPU-intensive compression tasks."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What category does this feature belong to?
+      options:
+        - New compression algorithm
+        - Performance improvement
+        - API enhancement
+        - Streaming functionality
+        - Configuration options
+        - Error handling
+        - Documentation
+        - Developer experience
+        - Platform support
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical (blocking my project)
+        - High (would significantly improve my workflow)
+        - Medium (nice to have)
+        - Low (minor improvement)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: algorithms
+    attributes:
+      label: Affected Algorithms
+      description: Which compression algorithms would this feature affect? (Check all that apply)
+      options:
+        - label: gzip
+        - label: zlib
+        - label: deflate
+        - label: zstd
+        - label: lz4
+        - label: lzma
+        - label: xz
+        - label: tar.gz
+        - label: zip
+        - label: All algorithms
+        - label: Algorithm-agnostic
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific use cases where this feature would be beneficial
+      placeholder: |
+        1. Batch processing large datasets
+        2. Real-time compression in web servers
+        3. Embedded systems with limited memory
+        4. ...
+    validations:
+      required: false
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples from Other Libraries
+      description: Are there examples of this feature in other compression libraries?
+      placeholder: |
+        Reference implementations or similar features in other libraries...
+        
+        Example: "Python's zipfile module has a similar feature with ZipFile.writestr()"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: breaking-changes
+    attributes:
+      label: Breaking Changes
+      description: Would this feature require breaking changes?
+      options:
+        - label: This feature would require breaking changes to the existing API
+        - label: This feature can be implemented without breaking changes
+        - label: I'm not sure about the impact on existing API
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or examples that would help
+      placeholder: |
+        - Links to relevant discussions or issues
+        - Performance benchmarks or requirements
+        - Platform-specific considerations
+        - Related features or dependencies
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: willing-to-help
+    attributes:
+      label: Contribution
+      description: Are you willing to help implement this feature?
+      options:
+        - label: I'm willing to submit a pull request to implement this feature
+        - label: I can help with design and testing
+        - label: I can provide feedback during development
+        - label: I can help with documentation

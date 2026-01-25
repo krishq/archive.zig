@@ -1,0 +1,187 @@
+name: 📚 Documentation Issue
+description: Report an issue with documentation or suggest improvements
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+assignees: ["muhammad-fiaz"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve our documentation! Please provide details about the documentation issue or improvement.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please check the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this hasn't been reported
+          required: true
+        - label: I have checked the latest version of the documentation
+          required: true
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation is this about?
+      options:
+        - API Reference
+        - User Guide
+        - Examples
+        - README
+        - Contributing Guide
+        - Installation Instructions
+        - Configuration Guide
+        - Error Messages
+        - Code Comments
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What type of documentation issue is this?
+      options:
+        - Missing information
+        - Incorrect information
+        - Outdated information
+        - Unclear explanation
+        - Broken link
+        - Typo or grammar error
+        - Missing example
+        - Incorrect example
+        - Formatting issue
+        - Accessibility issue
+        - Translation issue
+        - Suggestion for improvement
+    validations:
+      required: true
+
+  - type: input
+    id: page-url
+    attributes:
+      label: Documentation Page URL
+      description: Link to the specific documentation page (if applicable)
+      placeholder: "https://muhammad-fiaz.github.io/archive.zig/guide/getting-started"
+    validations:
+      required: false
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content
+      description: Quote the current documentation content that has issues
+      render: markdown
+      placeholder: |
+        ```
+        Current documentation text that needs to be fixed...
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: Describe the documentation issue in detail
+      placeholder: |
+        Clearly describe what's wrong or missing...
+        
+        Example: "The installation instructions don't mention that Zig 0.15.0 is required, which causes confusion for users with older versions."
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggested-fix
+    attributes:
+      label: Suggested Fix
+      description: How do you think this should be fixed or improved?
+      render: markdown
+      placeholder: |
+        Suggest the corrected content or improvement...
+        
+        Example:
+        ```markdown
+        ## Prerequisites
+        
+        - Zig 0.15.0 or later (download from [ziglang.org](https://ziglang.org/download/))
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: missing-info
+    attributes:
+      label: Missing Information
+      description: What information is missing that should be added?
+      placeholder: |
+        Describe what information should be added...
+        
+        Example: "Missing examples for streaming compression with custom buffer sizes."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: affected-sections
+    attributes:
+      label: Affected Documentation Sections
+      description: Which sections of the documentation are affected? (Check all that apply)
+      options:
+        - label: Introduction
+        - label: Installation
+        - label: Getting Started
+        - label: Quick Start
+        - label: Algorithms
+        - label: Configuration
+        - label: Builder Pattern
+        - label: Auto-Detection
+        - label: File Operations
+        - label: Streaming
+        - label: Error Handling
+        - label: Memory Management
+        - label: Threading
+        - label: Platform Support
+        - label: API Reference
+        - label: Examples
+        - label: Contributing Guide
+
+  - type: dropdown
+    id: user-level
+    attributes:
+      label: Target User Level
+      description: What level of user would be affected by this documentation issue?
+      options:
+        - Beginner (new to Archive.zig)
+        - Intermediate (familiar with basics)
+        - Advanced (experienced users)
+        - All users
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other context that would help us understand the issue
+      placeholder: |
+        - How did you discover this issue?
+        - What were you trying to accomplish?
+        - What confusion did this cause?
+        - Screenshots (if applicable)
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: willing-to-help
+    attributes:
+      label: Contribution
+      description: Are you willing to help fix this documentation issue?
+      options:
+        - label: I'm willing to submit a pull request to fix this
+        - label: I can help review the fix
+        - label: I can provide additional examples or content
+        - label: I can help test the improved documentation
