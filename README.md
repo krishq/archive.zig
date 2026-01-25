@@ -1,8 +1,7 @@
-# Archive.zig
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/565fc3dc-dd2c-47a6-bab6-2f545c551f26" alt="archive.zig logo" width="400" />
-  
+  <h1> Archive.zig</h1> 
+
   <a href="https://muhammad-fiaz.github.io/archive.zig/"><img src="https://img.shields.io/badge/docs-muhammad--fiaz.github.io-blue" alt="Documentation"></a>
   <a href="https://ziglang.org/"><img src="https://img.shields.io/badge/Zig-0.15.2-orange.svg?logo=zig" alt="Zig Version"></a>
   <a href="https://github.com/muhammad-fiaz/archive.zig"><img src="https://img.shields.io/github/stars/muhammad-fiaz/archive.zig" alt="GitHub stars"></a>
