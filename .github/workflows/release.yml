@@ -65,84 +65,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-  build-examples:
-    name: Build Examples (${{ matrix.target }})
-    needs: test
-    runs-on: ${{ matrix.runner }}
-    strategy:
-      matrix:
-        include:
-          - target: x86_64-windows
-            runner: windows-latest
-            ext: .exe
-          - target: x86_64-linux
-            runner: ubuntu-latest
-            ext: ""
-          - target: x86_64-macos
-            runner: macos-latest
-            ext: ""
-          - target: aarch64-macos
-            runner: macos-latest
-            ext: ""
-    steps:
-      - uses: actions/checkout@v5
-      - uses: mlugg/setup-zig@v2
-        with:
-          version: 0.15.2
-      - name: Build Examples and Benchmarks
-        run: |
-          zig build -Doptimize=ReleaseFast -Dtarget=${{ matrix.target }}
-      - name: Prepare Example Artifacts
-        run: |
-          mkdir -p release/examples-${{ matrix.target }}
-          
-          # Copy main example
-          if [ -f "zig-out/bin/main${{ matrix.ext }}" ]; then
-            cp zig-out/bin/main${{ matrix.ext }} release/examples-${{ matrix.target }}/archive-example${{ matrix.ext }}
-          fi
-          
-          # Create README for examples
-          cat > release/examples-${{ matrix.target }}/README.md << 'EOF'
-          # Archive.zig Examples
-          
-          This directory contains example executables for the archive.zig library.
-          
-          ## Examples
-          
-          - `archive-example`: Comprehensive bootstrap example using the project's own files
-          
-          ## Usage
-          
-          Run any example without arguments to see the demonstration:
-          
-          ```bash
-          ./archive-example  # Bootstrap example using project files
-          ```
-          
-          ## Platform
-          
-          Built for: ${{ matrix.target }}
-          EOF
-          
-          # Create archive
-          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
-            cd release && zip -r examples-${{ matrix.target }}.zip examples-${{ matrix.target }}/
-          else
-            cd release && tar -czf examples-${{ matrix.target }}.tar.gz examples-${{ matrix.target }}/
-          fi
-        shell: bash
-      - name: Upload Example Artifacts
-        run: |
-          cd release
-          if [[ "${{ matrix.target }}" == *"windows"* ]]; then
-            gh release upload "${{ github.event.release.tag_name }}" examples-${{ matrix.target }}.zip --clobber || true
-          else
-            gh release upload "${{ github.event.release.tag_name }}" examples-${{ matrix.target }}.tar.gz --clobber || true
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        shell: bash
-
   build-documentation:
     name: Build Documentation
     needs: test
@@ -173,7 +95,7 @@ jobs:
       - name: Create Source Package
         run: |
           mkdir -p release/archive-source
-          
+
           # Copy source files
           cp -r src/ release/archive-source/
           cp -r examples/ release/archive-source/
@@ -183,7 +105,7 @@ jobs:
           cp build.zig.zon release/archive-source/
           cp README.md release/archive-source/
           cp LICENSE release/archive-source/ 2>/dev/null || echo "# License" > release/archive-source/LICENSE
-          
+
           # Create archives
           cd release
           tar -czf archive-source-${{ github.event.release.tag_name }}.tar.gz archive-source/
@@ -198,7 +120,7 @@ jobs:
 
   update-release:
     name: Update Release Description
-    needs: [test, build-library, build-examples, build-documentation, create-source-package]
+    needs: [test, build-library, build-documentation, create-source-package]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -260,15 +182,6 @@ jobs:
             ```
 
             ## ⬇️ Downloads
-
-            ### 📚 Examples and Benchmarks
-
-            | Platform | File | Description |
-            |----------|------|-------------|
-            | Windows x64 | [examples-x86_64-windows.zip](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/examples-x86_64-windows.zip) | Example executables |
-            | Linux x64 | [examples-x86_64-linux.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/examples-x86_64-linux.tar.gz) | Example executables |
-            | macOS x64 | [examples-x86_64-macos.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/examples-x86_64-macos.tar.gz) | Example executables |
-            | macOS ARM64 | [examples-aarch64-macos.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/examples-aarch64-macos.tar.gz) | Example executables |
 
             ### 📖 Documentation and Source
 
