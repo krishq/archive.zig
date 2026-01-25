@@ -9,10 +9,10 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
     errdefer result.deinit(allocator);
 
     try result.append(allocator, constants.LzmaConstants.properties_byte);
-    
+
     const dict_size: u32 = constants.LzmaConstants.dict_size;
     try result.appendSlice(allocator, &std.mem.toBytes(dict_size));
-    
+
     try result.appendSlice(allocator, &std.mem.toBytes(@as(u64, data.len)));
 
     if (data.len == 0) {
@@ -21,7 +21,7 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
 
     const compressed_data = try compressLzmaData(allocator, data, options.level orelse 6);
     defer allocator.free(compressed_data);
-    
+
     try result.appendSlice(allocator, compressed_data);
 
     return result.toOwnedSlice(allocator);
@@ -41,8 +41,10 @@ pub fn decompress(allocator: std.mem.Allocator, data: []const u8, options: confi
 
     if (uncompressed_len > std.math.maxInt(usize)) return errors.CompressError.OutputTooLarge;
 
-    const output_size = if (uncompressed_len == 0 or uncompressed_len == std.math.maxInt(u64)) 
-        data.len * 4 else @as(usize, @intCast(uncompressed_len));
+    const output_size = if (uncompressed_len == 0 or uncompressed_len == std.math.maxInt(u64))
+        data.len * 4
+    else
+        @as(usize, @intCast(uncompressed_len));
 
     var result = std.ArrayList(u8).initCapacity(allocator, output_size) catch return error.OutOfMemory;
     errdefer result.deinit(allocator);
@@ -60,7 +62,7 @@ pub fn decompress(allocator: std.mem.Allocator, data: []const u8, options: confi
 
 fn compressLzmaData(allocator: std.mem.Allocator, data: []const u8, level: u8) ![]u8 {
     _ = level;
-    
+
     var result = std.ArrayList(u8).initCapacity(allocator, data.len) catch return error.OutOfMemory;
     errdefer result.deinit(allocator);
 
@@ -94,15 +96,15 @@ fn compressLzmaData(allocator: std.mem.Allocator, data: []const u8, level: u8) !
 
         while (search_pos > 0 and chain_len < max_chain) : (chain_len += 1) {
             if (search_pos >= pos or pos - search_pos > max_offset) break;
-            
+
             const offset = pos - search_pos;
             if (offset == 0) break;
 
             var match_len: usize = 0;
             while (pos + match_len < data.len and
-                   search_pos + match_len < pos and
-                   data[search_pos + match_len] == data[pos + match_len] and
-                   match_len < constants.LzmaConstants.max_match)
+                search_pos + match_len < pos and
+                data[search_pos + match_len] == data[pos + match_len] and
+                match_len < constants.LzmaConstants.max_match)
             {
                 match_len += 1;
             }
@@ -143,17 +145,17 @@ fn decompressLzmaData(allocator: std.mem.Allocator, data: []const u8, expected_s
     try result.ensureTotalCapacity(allocator, expected_size);
 
     var pos: usize = 0;
-    
+
     while (pos < data.len) {
         const byte = data[pos];
-        
+
         if (byte == 0x00) {
             break;
         } else if ((byte & 0x80) != 0) {
             var lit_len: usize = 0;
             if (byte == 0xFF) {
                 if (pos + 3 > data.len) return errors.CompressError.InvalidData;
-                lit_len = std.mem.readInt(u16, data[pos + 1..][0..2], .little);
+                lit_len = std.mem.readInt(u16, data[pos + 1 ..][0..2], .little);
                 pos += 3;
             } else {
                 lit_len = byte & 0x7F;
@@ -161,32 +163,32 @@ fn decompressLzmaData(allocator: std.mem.Allocator, data: []const u8, expected_s
             }
 
             if (pos + lit_len > data.len) return errors.CompressError.InvalidData;
-            
+
             const literals = data[pos .. pos + lit_len];
             try result.appendSlice(allocator, literals);
             pos += lit_len;
         } else {
             if ((byte & 0x40) == 0) {
                 if (pos + 2 > data.len) return errors.CompressError.InvalidData;
-                
+
                 const len = @as(usize, byte & 0x0F) + 2;
                 const offset = @as(usize, data[pos + 1]);
                 pos += 2;
-                
+
                 try copyLzmaMatch(&result, allocator, offset, len);
             } else {
                 if (pos + 3 > data.len) return errors.CompressError.InvalidData;
-                
+
                 var len = @as(usize, byte & 0x0F) + 2;
-                const offset = std.mem.readInt(u16, data[pos + 1..][0..2], .little);
+                const offset = std.mem.readInt(u16, data[pos + 1 ..][0..2], .little);
                 pos += 3;
-                
+
                 if (len == 17) {
                     if (pos >= data.len) return errors.CompressError.InvalidData;
                     len += @as(usize, data[pos]);
                     pos += 1;
                 }
-                
+
                 try copyLzmaMatch(&result, allocator, offset, len);
             }
         }
@@ -208,7 +210,7 @@ fn writeLzmaLiterals(result: *std.ArrayList(u8), allocator: std.mem.Allocator, l
             try result.append(allocator, 0xFF);
             try result.appendSlice(allocator, &std.mem.toBytes(@as(u16, @intCast(chunk_len))));
         }
-        
+
         try result.appendSlice(allocator, chunk);
         offset += chunk_len;
     }
@@ -221,7 +223,7 @@ fn writeLzmaMatch(result: *std.ArrayList(u8), allocator: std.mem.Allocator, offs
     } else {
         try result.append(allocator, 0x40 | @as(u8, @intCast(@min(length - 2, 15))));
         try result.appendSlice(allocator, &std.mem.toBytes(offset));
-        
+
         if (length >= 17) {
             try result.append(allocator, @as(u8, @intCast(@min(length - 17, 255))));
         }
@@ -230,7 +232,7 @@ fn writeLzmaMatch(result: *std.ArrayList(u8), allocator: std.mem.Allocator, offs
 
 fn copyLzmaMatch(result: *std.ArrayList(u8), allocator: std.mem.Allocator, offset: usize, length: usize) !void {
     if (offset > result.items.len or offset == 0) return errors.CompressError.InvalidOffset;
-    
+
     const start = result.items.len - offset;
     var i: usize = 0;
     while (i < length) : (i += 1) {
@@ -241,26 +243,26 @@ fn copyLzmaMatch(result: *std.ArrayList(u8), allocator: std.mem.Allocator, offse
 
 test "lzma compress and decompress" {
     const testing = std.testing;
-    
+
     const data = "Hello, World! This is a test string for LZMA compression.";
     const compressed = try compress(testing.allocator, data, .{});
     defer testing.allocator.free(compressed);
-    
+
     const decompressed = try decompress(testing.allocator, compressed, .{});
     defer testing.allocator.free(decompressed);
-    
+
     try testing.expectEqualStrings(data, decompressed);
 }
 
 test "lzma empty data" {
     const testing = std.testing;
-    
+
     const data = "";
     const compressed = try compress(testing.allocator, data, .{});
     defer testing.allocator.free(compressed);
-    
+
     const decompressed = try decompress(testing.allocator, compressed, .{});
     defer testing.allocator.free(decompressed);
-    
+
     try testing.expectEqualStrings(data, decompressed);
 }

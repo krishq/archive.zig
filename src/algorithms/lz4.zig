@@ -12,13 +12,13 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
     errdefer result.deinit(allocator);
 
     try result.appendSlice(allocator, &LZ4_MAGIC);
-    
+
     const flags: u8 = 0x40;
     try result.append(allocator, flags);
-    
+
     const block_size: u8 = 0x70;
     try result.append(allocator, block_size);
-    
+
     const header_checksum = calculateXXHash(&[_]u8{ flags, block_size }) & 0xFF;
     try result.append(allocator, @intCast(header_checksum));
 
@@ -42,7 +42,7 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
 pub fn decompress(allocator: std.mem.Allocator, data: []const u8, options: config.Options) ![]u8 {
     _ = options;
     if (data.len < 7) return errors.CompressError.InvalidData;
-    
+
     if (!std.mem.eql(u8, data[0..4], &LZ4_MAGIC)) {
         return errors.CompressError.InvalidMagic;
     }
@@ -54,15 +54,15 @@ pub fn decompress(allocator: std.mem.Allocator, data: []const u8, options: confi
     while (pos + 4 <= data.len) {
         const block_size = std.mem.readInt(u32, data[pos..][0..4], .little);
         pos += 4;
-        
+
         if (block_size == 0) break;
-        
+
         if (pos + block_size > data.len) return errors.CompressError.InvalidData;
-        
+
         const block_data = data[pos .. pos + block_size];
         const decompressed_block = try decompressBlock(allocator, block_data);
         defer allocator.free(decompressed_block);
-        
+
         try result.appendSlice(allocator, decompressed_block);
         pos += block_size;
     }
@@ -99,8 +99,8 @@ fn compressBlock(allocator: std.mem.Allocator, data: []const u8) ![]u8 {
         {
             var match_len: usize = min_match;
             while (pos + match_len < data.len and
-                   match_pos + match_len < pos and
-                   data[match_pos + match_len] == data[pos + match_len])
+                match_pos + match_len < pos and
+                data[match_pos + match_len] == data[pos + match_len])
             {
                 match_len += 1;
             }
@@ -125,10 +125,10 @@ fn decompressBlock(allocator: std.mem.Allocator, data: []const u8) ![]u8 {
     errdefer result.deinit(allocator);
 
     var pos: usize = 0;
-    
+
     while (pos < data.len) {
         if (pos >= data.len) break;
-        
+
         const token = data[pos];
         pos += 1;
 
@@ -145,7 +145,7 @@ fn decompressBlock(allocator: std.mem.Allocator, data: []const u8) ![]u8 {
         }
 
         if (pos + lit_len > data.len) return errors.CompressError.InvalidData;
-        
+
         const literals = data[pos .. pos + lit_len];
         try result.appendSlice(allocator, literals);
         pos += lit_len;
@@ -182,7 +182,7 @@ fn writeLz4Sequence(result: *std.ArrayList(u8), allocator: std.mem.Allocator, li
     } else {
         token |= @as(u8, @intCast(lit_len)) << 4;
     }
-    
+
     if (ml >= 15) {
         token |= 0x0F;
     } else {
@@ -239,7 +239,7 @@ fn writeLz4Literals(result: *std.ArrayList(u8), allocator: std.mem.Allocator, li
 
 fn copyMatch(result: *std.ArrayList(u8), allocator: std.mem.Allocator, offset: usize, length: usize) !void {
     if (offset > result.items.len or offset == 0) return errors.CompressError.InvalidOffset;
-    
+
     const start = result.items.len - offset;
     var i: usize = 0;
     while (i < length) : (i += 1) {
@@ -258,28 +258,28 @@ fn calculateXXHash(data: []const u8) u32 {
 
 test "lz4 compress and decompress" {
     const testing = std.testing;
-    
+
     const data = "Hello, World! This is a test string for LZ4 compression.";
     const compressed = try compress(testing.allocator, data, .{});
     defer testing.allocator.free(compressed);
-    
+
     try testing.expect(std.mem.startsWith(u8, compressed, &LZ4_MAGIC));
-    
+
     const decompressed = try decompress(testing.allocator, compressed, .{});
     defer testing.allocator.free(decompressed);
-    
+
     try testing.expectEqualStrings(data, decompressed);
 }
 
 test "lz4 empty data" {
     const testing = std.testing;
-    
+
     const data = "";
     const compressed = try compress(testing.allocator, data, .{});
     defer testing.allocator.free(compressed);
-    
+
     const decompressed = try decompress(testing.allocator, compressed, .{});
     defer testing.allocator.free(decompressed);
-    
+
     try testing.expectEqualStrings(data, decompressed);
 }

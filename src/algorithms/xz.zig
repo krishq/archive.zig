@@ -10,16 +10,16 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
     errdefer result.deinit(allocator);
 
     try result.appendSlice(allocator, &constants.Magic.xz);
-    
+
     try result.appendSlice(allocator, &[_]u8{ 0x00, 0x04 });
-    
+
     const flags_crc = utils.calculateCRC32(&[_]u8{ 0x00, 0x04 });
     try result.appendSlice(allocator, &std.mem.toBytes(flags_crc));
 
     const block_start = result.items.len;
     try result.append(allocator, 0x00);
     try result.append(allocator, 0x00);
-    
+
     try result.append(allocator, 0x21);
     try result.append(allocator, 0x01);
     try result.append(allocator, 0x00);
@@ -37,7 +37,7 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
 
     const lzma_data = try compressLzma2(allocator, data, options.level orelse 6);
     defer allocator.free(lzma_data);
-    
+
     try result.appendSlice(allocator, lzma_data);
 
     while (result.items.len % 4 != 0) {
@@ -50,7 +50,7 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
     const index_start = result.items.len;
     try result.append(allocator, 0x00);
     try result.append(allocator, 0x01);
-    
+
     try result.append(allocator, @intCast(@min(lzma_data.len, 127)));
     try result.append(allocator, @intCast(@min(data.len, 127)));
 
@@ -63,7 +63,7 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
 
     const footer_crc = utils.calculateCRC32(&[_]u8{ 0x00, 0x04 });
     try result.appendSlice(allocator, &std.mem.toBytes(footer_crc));
-    
+
     const index_size = result.items.len - index_start;
     try result.appendSlice(allocator, &std.mem.toBytes(@as(u32, @intCast(index_size / 4 - 1))));
     try result.appendSlice(allocator, &[_]u8{ 0x00, 0x04 });
@@ -75,13 +75,13 @@ pub fn compress(allocator: std.mem.Allocator, data: []const u8, options: config.
 pub fn decompress(allocator: std.mem.Allocator, data: []const u8, options: config.Options) ![]u8 {
     _ = options;
     if (data.len < 12) return errors.CompressError.InvalidData;
-    
+
     var stream = std.io.fixedBufferStream(data);
     var reader = stream.reader();
 
     const magic = data[0..6];
     try stream.seekBy(6);
-    
+
     if (!std.mem.eql(u8, magic, &constants.Magic.xz)) {
         return errors.CompressError.InvalidMagic;
     }
@@ -90,7 +90,7 @@ pub fn decompress(allocator: std.mem.Allocator, data: []const u8, options: confi
 
     const header_size_encoded = try reader.readByte();
     if (header_size_encoded == 0) return errors.CompressError.InvalidData;
-    
+
     const header_size = (@as(usize, header_size_encoded) + 1) * 4;
     try stream.seekBy(@intCast(header_size - 1));
 
@@ -109,7 +109,7 @@ fn compressLzma2(allocator: std.mem.Allocator, data: []const u8, level: u8) ![]u
 
     const chunk_size = constants.LzmaConstants.chunk_size;
     var pos: usize = 0;
-    
+
     while (pos < data.len) {
         const end = @min(pos + chunk_size, data.len);
         const chunk = data[pos..end];
@@ -117,10 +117,10 @@ fn compressLzma2(allocator: std.mem.Allocator, data: []const u8, level: u8) ![]u
 
         var lzma_data = std.ArrayList(u8).initCapacity(allocator, 1024) catch return error.OutOfMemory;
         defer lzma_data.deinit(allocator);
-        
+
         const compressed_chunk = try lzma.compress(allocator, chunk, .{ .level = level });
         defer allocator.free(compressed_chunk);
-        
+
         try lzma_data.appendSlice(allocator, compressed_chunk[13..]);
 
         if (lzma_data.items.len > 65535) {
@@ -154,15 +154,15 @@ fn decompressLzma2(allocator: std.mem.Allocator, data: []const u8) ![]u8 {
         if (control == 0x02) {
             const unpacked_size = @as(usize, try reader.readInt(u16, .little)) + 1;
             const packed_size = @as(usize, try reader.readInt(u16, .little)) + 1;
-            
+
             if (stream.pos + packed_size > data.len) return errors.CompressError.InvalidData;
-            
+
             const chunk_data = data[stream.pos .. stream.pos + packed_size];
             try stream.seekBy(@intCast(packed_size));
 
             var lzma_header = std.ArrayList(u8).initCapacity(allocator, 1024) catch return error.OutOfMemory;
             defer lzma_header.deinit(allocator);
-            
+
             try lzma_header.append(allocator, constants.LzmaConstants.properties_byte);
             try lzma_header.appendSlice(allocator, &std.mem.toBytes(@as(u32, constants.LzmaConstants.dict_size)));
             try lzma_header.appendSlice(allocator, &std.mem.toBytes(@as(u64, unpacked_size)));
@@ -170,7 +170,7 @@ fn decompressLzma2(allocator: std.mem.Allocator, data: []const u8) ![]u8 {
 
             const chunk_decompressed = try lzma.decompress(allocator, lzma_header.items, .{});
             defer allocator.free(chunk_decompressed);
-            
+
             try result.appendSlice(allocator, chunk_decompressed);
         } else {
             return errors.CompressError.UnsupportedLzma2Chunk;
@@ -182,28 +182,28 @@ fn decompressLzma2(allocator: std.mem.Allocator, data: []const u8) ![]u8 {
 
 test "xz compress and decompress" {
     const testing = std.testing;
-    
+
     const data = "Hello, World! This is a test string for XZ compression.";
     const compressed = try compress(testing.allocator, data, .{});
     defer testing.allocator.free(compressed);
-    
+
     try testing.expect(std.mem.startsWith(u8, compressed, &constants.Magic.xz));
-    
+
     const decompressed = try decompress(testing.allocator, compressed, .{});
     defer testing.allocator.free(decompressed);
-    
+
     try testing.expectEqualStrings(data, decompressed);
 }
 
 test "xz empty data" {
     const testing = std.testing;
-    
+
     const data = "";
     const compressed = try compress(testing.allocator, data, .{});
     defer testing.allocator.free(compressed);
-    
+
     const decompressed = try decompress(testing.allocator, compressed, .{});
     defer testing.allocator.free(decompressed);
-    
+
     try testing.expectEqualStrings(data, decompressed);
 }
