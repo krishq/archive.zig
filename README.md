@@ -28,10 +28,7 @@
   </b>
 </div>
 
-A production-grade, high-performance archive and compression library for Zig, supporting multiple compression algorithms and archive formats with a clean, intuitive API.
-
-> [!NOTE]
-> This project aims to be production ready with comprehensive compression algorithm support and efficient implementations optimized for Zig 0.15+.
+A All-in-One archive and compression library for Zig, supporting multiple compression algorithms and archive formats with a clean, intuitive API.
 
 **⭐️ If you love `archive.zig`, make sure to give it a star! ⭐️**
 
