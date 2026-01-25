@@ -86,41 +86,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-  create-source-package:
-    name: Create Source Package
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - name: Create Source Package
-        run: |
-          mkdir -p release/archive-source
-
-          # Copy source files
-          cp -r src/ release/archive-source/
-          cp -r examples/ release/archive-source/
-          cp -r docs/ release/archive-source/
-          cp -r bench/ release/archive-source/
-          cp build.zig release/archive-source/
-          cp build.zig.zon release/archive-source/
-          cp README.md release/archive-source/
-          cp LICENSE release/archive-source/ 2>/dev/null || echo "# License" > release/archive-source/LICENSE
-
-          # Create archives
-          cd release
-          tar -czf archive-source-${{ github.event.release.tag_name }}.tar.gz archive-source/
-          zip -r archive-source-${{ github.event.release.tag_name }}.zip archive-source/
-      - name: Upload Source Package
-        run: |
-          cd release
-          gh release upload "${{ github.event.release.tag_name }}" archive-source-${{ github.event.release.tag_name }}.tar.gz --clobber || true
-          gh release upload "${{ github.event.release.tag_name }}" archive-source-${{ github.event.release.tag_name }}.zip --clobber || true
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
   update-release:
     name: Update Release Description
-    needs: [test, build-library, build-documentation, create-source-package]
+    needs: [test, build-library, build-documentation]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -183,13 +151,11 @@ jobs:
 
             ## ⬇️ Downloads
 
-            ### 📖 Documentation and Source
+            ### 📖 Documentation
 
             | Type | File | Description |
             |------|------|-------------|
             | Documentation | [archive-docs-${{ github.event.release.tag_name }}.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/archive-docs-${{ github.event.release.tag_name }}.tar.gz) | Generated API documentation |
-            | Source Code | [archive-source-${{ github.event.release.tag_name }}.tar.gz](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/archive-source-${{ github.event.release.tag_name }}.tar.gz) | Complete source code package |
-            | Source Code | [archive-source-${{ github.event.release.tag_name }}.zip](https://github.com/muhammad-fiaz/archive.zig/releases/download/${{ github.event.release.tag_name }}/archive-source-${{ github.event.release.tag_name }}.zip) | Complete source code package (ZIP) |
 
             ### 🔧 Prebuilt Libraries
 
