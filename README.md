@@ -141,7 +141,7 @@ Archive.zig supports a wide range of platforms and architectures:
 The easiest way to add Archive.zig to your project:
 
 ```bash
-zig fetch --save https://github.com/muhammad-fiaz/archive.zig/archive/refs/tags/v1.0.0.tar.gz
+zig fetch --save https://github.com/muhammad-fiaz/archive.zig/archive/refs/tags/1.0.0.tar.gz
 ```
 
 This automatically adds the dependency with the correct hash to your `build.zig.zon`.
@@ -153,7 +153,7 @@ Add to your `build.zig.zon`:
 ```zig
 .dependencies = .{
     .archive = .{
-        .url = "https://github.com/muhammad-fiaz/archive.zig/archive/refs/tags/v1.0.0.tar.gz",
+        .url = "https://github.com/muhammad-fiaz/archive.zig/archive/refs/tags/1.0.0.tar.gz",
         .hash = "...", // Run zig fetch to get the hash
     },
 },
