@@ -28,7 +28,7 @@
   </b>
 </div>
 
-A All-in-One archive and compression library for Zig, supporting multiple compression algorithms and archive formats with a clean, intuitive API.
+All-in-One archive and compression library for Zig, supporting multiple compression algorithms and archive formats with a clean, intuitive API.
 
 **⭐️ If you love `archive.zig`, make sure to give it a star! ⭐️**
 

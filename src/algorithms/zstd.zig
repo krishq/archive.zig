@@ -48,12 +48,13 @@ pub fn decompress(allocator: std.mem.Allocator, data: []const u8, options: confi
         return decompressUnknownSize(allocator, data);
     }
 
-    const dest_buffer = try allocator.alloc(u8, decompressed_size);
+    const dest_size = std.math.cast(usize, decompressed_size) orelse return error.OutOfMemory;
+    const dest_buffer = try allocator.alloc(u8, dest_size);
     errdefer allocator.free(dest_buffer);
 
     const result_size = zstd.c.ZSTD_decompress(
         dest_buffer.ptr,
-        decompressed_size,
+        dest_size,
         data.ptr,
         data.len,
     );
@@ -113,12 +114,13 @@ pub fn compressWithLevel(allocator: std.mem.Allocator, data: []const u8, level: 
     const max_dst_size = zstd.c.ZSTD_compressBound(data.len);
     if (max_dst_size == 0) return errors.CompressError.ZstdError;
 
-    const dest_buffer = try allocator.alloc(u8, max_dst_size);
+    const max_dst_size_usize = std.math.cast(usize, max_dst_size) orelse return error.OutOfMemory;
+    const dest_buffer = try allocator.alloc(u8, max_dst_size_usize);
     errdefer allocator.free(dest_buffer);
 
     const compressed_size = zstd.c.ZSTD_compress(
         dest_buffer.ptr,
-        max_dst_size,
+        max_dst_size_usize,
         data.ptr,
         data.len,
         level,
@@ -128,7 +130,8 @@ pub fn compressWithLevel(allocator: std.mem.Allocator, data: []const u8, level: 
         return errors.CompressError.ZstdError;
     }
 
-    return allocator.realloc(dest_buffer, compressed_size);
+    const compressed_size_usize = std.math.cast(usize, compressed_size) orelse return error.OutOfMemory;
+    return allocator.realloc(dest_buffer, compressed_size_usize);
 }
 
 pub fn compressStream(allocator: std.mem.Allocator, data: []const u8, options: config.Options) ![]u8 {
