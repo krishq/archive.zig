@@ -1,7 +1,7 @@
 .{
     .name = .archive,
 
-    .version = "0.0.0",
+    .version = "0.0.1",
     .fingerprint = 0xd5fc5d9cb0191045,
     .minimum_zig_version = "0.15.0",
     .dependencies = .{
