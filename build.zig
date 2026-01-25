@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -32,6 +33,7 @@ pub fn build(b: *std.Build) void {
     // Create run-all-examples step that runs all examples sequentially
     const run_all_examples = b.step("run-all-examples", "Run all examples sequentially");
     var previous_run_step: ?*std.Build.Step = null;
+    var install_step: ?*std.Build.Step = null;
 
     inline for (examples) |example| {
         const exe = b.addExecutable(.{
@@ -48,6 +50,7 @@ pub fn build(b: *std.Build) void {
         const install_exe = b.addInstallArtifact(exe, .{});
         const example_step = b.step("example-" ++ example.name, "Build " ++ example.name ++ " example");
         example_step.dependOn(&install_exe.step);
+        install_step = &install_exe.step;
 
         // Add run step for each example
         const run_exe = b.addRunArtifact(exe);
@@ -66,11 +69,21 @@ pub fn build(b: *std.Build) void {
         }
     }
 
-    if (previous_run_step) |last| {
-        run_all_examples.dependOn(last);
+    if (target.result.os.tag == builtin.os.tag and target.result.cpu.arch == builtin.cpu.arch) {
+        if (previous_run_step) |last| {
+            run_all_examples.dependOn(last);
+        }
+    } else {
+        // For cross-compilation, just build the examples
+        if (install_step) |step| {
+            run_all_examples.dependOn(step);
+        }
     }
 
-    // Unit tests
+    // Add a 'run' step that runs all examples
+    const run_step = b.step("run", "Run examples");
+    run_step.dependOn(run_all_examples);
+
     const tests = b.addTest(.{
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/archive.zig"),
@@ -83,7 +96,6 @@ pub fn build(b: *std.Build) void {
 
     const run_tests = b.addRunArtifact(tests);
     const test_step = b.step("test", "Run unit tests");
-    const builtin = @import("builtin");
 
     // Only run tests if compatible with host
     if (target.result.os.tag == builtin.os.tag and target.result.cpu.arch == builtin.cpu.arch) {
