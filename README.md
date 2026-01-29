@@ -153,7 +153,7 @@ Add to your `build.zig.zon`:
 ```zig
 .dependencies = .{
     .archive = .{
-        .url = "https://github.com/muhammad-fiaz/archive.zig/archive/refs/tags/1.0.0.tar.gz",
+        .url = "https://github.com/muhammad-fiaz/archive.zig/archive/refs/tags/0.0.1.tar.gz",
         .hash = "...", // Run zig fetch to get the hash
     },
 },
